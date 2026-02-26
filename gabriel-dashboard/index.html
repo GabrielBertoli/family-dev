@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gabriel Bertoli — Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-start: #0a0a2e;
+      --bg-end: #000000;
+      --card-bg: rgba(255,255,255,0.05);
+      --card-border: rgba(255,255,255,0.1);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.55);
+      --toggle-bg: rgba(255,255,255,0.1);
+      --toggle-hover: rgba(255,255,255,0.18);
+    }
+
+    [data-theme="light"] {
+      --bg-start: #ffffff;
+      --bg-end: #f0f0f0;
+      --card-bg: rgba(0,0,0,0.03);
+      --card-border: rgba(0,0,0,0.08);
+      --text-primary: #111111;
+      --text-secondary: rgba(0,0,0,0.45);
+      --toggle-bg: rgba(0,0,0,0.07);
+      --toggle-hover: rgba(0,0,0,0.12);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      color: var(--text-primary);
+      transition: background 0.3s ease, color 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 48px 40px 24px;
+      position: relative;
+    }
+
+    header h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    header p.subtitle {
+      margin-top: 6px;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: color 0.3s ease;
+    }
+
+    /* ── CONTROLS ── */
+    .controls {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .toggle-btn {
+      background: var(--toggle-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 50px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+      backdrop-filter: blur(10px);
+      user-select: none;
+    }
+
+    .toggle-btn:hover {
+      background: var(--toggle-hover);
+    }
+
+    /* ── GRID ── */
+    main {
+      flex: 1;
+      padding: 20px 40px 40px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+      header { padding: 32px 20px 16px; }
+      .controls { top: 24px; right: 20px; }
+      main { padding: 16px 20px 32px; }
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .card-title {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      transition: color 0.3s ease;
+    }
+
+    /* ── CLOCK CARD ── */
+    #clock-time {
+      font-size: clamp(2.4rem, 4vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    #clock-date {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      transition: color 0.3s ease;
+      line-height: 1.4;
+    }
+
+    /* ── WEATHER CARD ── */
+    #weather-emoji {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    #weather-temp {
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    #weather-desc {
+      margin-top: 8px;
+      font-size: 1rem;
+      color: var(--text-secondary);
+      transition: color 0.3s ease;
+    }
+
+    #weather-wind {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      transition: color 0.3s ease;
+    }
+
+    /* ── QUOTE CARD ── */
+    #quote-text {
+      font-size: 1.05rem;
+      line-height: 1.65;
+      font-style: italic;
+      margin-bottom: 16px;
+    }
+
+    #quote-author {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      transition: color 0.3s ease;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 20px 40px 32px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      transition: color 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Gabriel Bertoli</h1>
+    <p class="subtitle" id="subtitle">Dashboard Personnel</p>
+    <div class="controls">
+      <button class="toggle-btn" id="theme-toggle" aria-label="Toggle theme">🌙</button>
+      <button class="toggle-btn" id="lang-toggle" aria-label="Toggle language">🇫🇷</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+
+      <!-- CLOCK -->
+      <div class="card">
+        <span class="card-icon">🕐</span>
+        <p class="card-title" id="label-clock">Date &amp; Heure</p>
+        <div id="clock-time">--:--:--</div>
+        <div id="clock-date">--</div>
+      </div>
+
+      <!-- WEATHER -->
+      <div class="card">
+        <span class="card-icon">🌤️</span>
+        <p class="card-title" id="label-weather">Météo Paris</p>
+        <span id="weather-emoji">⏳</span>
+        <div id="weather-temp">--°C</div>
+        <div id="weather-desc">Chargement…</div>
+        <div id="weather-wind"></div>
+      </div>
+
+      <!-- QUOTE -->
+      <div class="card">
+        <span class="card-icon">💬</span>
+        <p class="card-title" id="label-quote">Citation du Jour</p>
+        <p id="quote-text"></p>
+        <p id="quote-author"></p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer id="footer">Fait avec ❤️ par Gabriel Bertoli</footer>
+
+  <script>
+    // ──────────────────────────────────────────
+    // STATE
+    // ──────────────────────────────────────────
+    const stored = {
+      theme: localStorage.getItem('gabriel-dash-theme'),
+      lang:  localStorage.getItem('gabriel-dash-lang'),
+    };
+
+    // Auto-detect OS preference on first load
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored.theme || (prefersDark ? 'dark' : 'light');
+    let lang  = stored.lang  || 'fr';
+
+    // ──────────────────────────────────────────
+    // I18N
+    // ──────────────────────────────────────────
+    const i18n = {
+      fr: {
+        subtitle:      'Dashboard Personnel',
+        labelClock:    'Date & Heure',
+        labelWeather:  'Météo Paris',
+        labelQuote:    'Citation du Jour',
+        footer:        'Fait avec ❤️ par Gabriel Bertoli',
+        loading:       'Chargement…',
+        error:         'Données indisponibles',
+        wind:          (v) => `Vent : ${v} km/h`,
+        days:          ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
+        months:        ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'],
+      },
+      en: {
+        subtitle:      'Personal Dashboard',
+        labelClock:    'Date & Time',
+        labelWeather:  'Paris Weather',
+        labelQuote:    'Quote of the Day',
+        footer:        'Made with ❤️ by Gabriel Bertoli',
+        loading:       'Loading…',
+        error:         'Data unavailable',
+        wind:          (v) => `Wind: ${v} km/h`,
+      },
+    };
+
+    // ──────────────────────────────────────────
+    // WEATHER CODE MAPPING
+    // ──────────────────────────────────────────
+    function weatherInfo(code, l) {
+      const isFr = l === 'fr';
+      if (code === 0)                         return { label: isFr ? 'Ciel dégagé'        : 'Clear sky',        emoji: '☀️' };
+      if (code >= 1  && code <= 3)            return { label: isFr ? 'Partiellement nuageux' : 'Partly cloudy', emoji: '⛅' };
+      if (code === 45 || code === 48)         return { label: isFr ? 'Brouillard'          : 'Fog',             emoji: '🌫️' };
+      if (code >= 51 && code <= 55)           return { label: isFr ? 'Bruine'              : 'Drizzle',         emoji: '🌦️' };
+      if (code >= 61 && code <= 65)           return { label: isFr ? 'Pluie'               : 'Rain',            emoji: '🌧️' };
+      if (code >= 71 && code <= 75)           return { label: isFr ? 'Neige'               : 'Snow',            emoji: '❄️' };
+      if (code >= 80 && code <= 82)           return { label: isFr ? 'Averses'             : 'Showers',         emoji: '🌦️' };
+      if (code >= 95 && code <= 99)           return { label: isFr ? 'Orage'               : 'Thunderstorm',    emoji: '⛈️' };
+      return { label: isFr ? 'Nuageux' : 'Cloudy', emoji: '☁️' };
+    }
+
+    // ──────────────────────────────────────────
+    // QUOTES (20 stoic/philosophical)
+    // ──────────────────────────────────────────
+    const quotes = [
+      { fr: "Tu as du pouvoir sur ton esprit, pas sur les événements extérieurs. Réalise-le, et tu trouveras la force.", en: "You have power over your mind, not outside events. Realize this, and you will find strength.", author: "Marc Aurèle" },
+      { fr: "Ne cherche pas que ce qui arrive arrive comme tu veux, mais souhaite que ce qui arrive soit tel qu'il est.", en: "Seek not that the things which happen should happen as you wish; but wish the things which happen to be as they are.", author: "Épictète" },
+      { fr: "Omnia, Lucili, aliena sunt, tempus tantum nostrum est.", en: "Everything is alien to us, Lucilius — time alone is ours.", author: "Sénèque" },
+      { fr: "La seule vraie sagesse est de savoir que vous ne savez rien.", en: "The only true wisdom is in knowing you know nothing.", author: "Socrate" },
+      { fr: "Si tu es blessé par une chose extérieure, ce n'est pas elle qui te trouble, mais le jugement que tu portes sur elle.", en: "If you are pained by external things, it is not they that disturb you, but your own judgment of them.", author: "Marc Aurèle" },
+      { fr: "Perds ton temps à chercher un ennemi et tu en trouveras un en toi-même.", en: "Waste no more time arguing about what a good man should be. Be one.", author: "Marc Aurèle" },
+      { fr: "Ce n'est pas le manque qui crée la pauvreté, c'est le désir.", en: "It is not the man who has too little, but the man who craves more, that is poor.", author: "Sénèque" },
+      { fr: "Il n'y a pas de vent favorable pour celui qui ne sait pas où il va.", en: "If a man knows not to which port he sails, no wind is favorable.", author: "Sénèque" },
+      { fr: "Commence par t'acquitter du nécessaire, puis de ce qui est possible, et soudain tu feras l'impossible.", en: "Start by doing what's necessary, then what's possible, and suddenly you are doing the impossible.", author: "François d'Assise" },
+      { fr: "L'homme qui se déplace peut bouger les montagnes.", en: "The man who moves a mountain begins by carrying away small stones.", author: "Confucius" },
+      { fr: "Épictète est libre parce qu'il sait que ses maîtres ne peuvent lui prendre que ses chaînes.", en: "Epictetus is free because he knows his masters can only take his chains.", author: "Épictète" },
+      { fr: "Vis comme si tu mourais demain. Apprends comme si tu devais vivre éternellement.", en: "Live as if you were to die tomorrow. Learn as if you were to live forever.", author: "Gandhi" },
+      { fr: "Celui qui a un pourquoi peut supporter n'importe quel comment.", en: "He who has a why to live can bear almost any how.", author: "Nietzsche" },
+      { fr: "La mesure de l'intelligence, c'est la capacité de changer.", en: "The measure of intelligence is the ability to change.", author: "Albert Einstein" },
+      { fr: "Nous souffrons davantage en imagination que dans la réalité.", en: "We suffer more in imagination than in reality.", author: "Sénèque" },
+      { fr: "Il faut souffrir pour grandir. La joie sans souffrance n'a aucun sens.", en: "One must suffer to grow. Joy without suffering has no meaning.", author: "Carl Jung" },
+      { fr: "Le bonheur, c'est de continuer à désirer ce qu'on possède déjà.", en: "Happiness is to want what you already have.", author: "Saint Augustin" },
+      { fr: "La liberté n'est pas de faire ce qui nous plaît, mais d'avoir le droit de faire ce que nous devons.", en: "Freedom is not the right to do what we want, but what we ought.", author: "Abraham Lincoln" },
+      { fr: "Ne pas avoir le temps est la plus belle des excuses pour ne rien faire.", en: "Not having time is the most elegant excuse for doing nothing.", author: "Épictète" },
+      { fr: "Les hommes ne sont pas troublés par les événements, mais par les opinions qu'ils ont des événements.", en: "Men are disturbed not by things, but by the opinions about things.", author: "Épictète" },
+    ];
+
+    function getDailyQuote() {
+      const str = new Date().toDateString();
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return quotes[Math.abs(hash) % quotes.length];
+    }
+
+    // ──────────────────────────────────────────
+    // APPLY THEME & LANG
+    // ──────────────────────────────────────────
+    function applyTheme() {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('theme-toggle').textContent = theme === 'dark' ? '🌙' : '☀️';
+      localStorage.setItem('gabriel-dash-theme', theme);
+    }
+
+    function applyLang() {
+      const t = i18n[lang];
+      document.getElementById('lang-toggle').textContent  = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+      document.getElementById('subtitle').textContent     = t.subtitle;
+      document.getElementById('label-clock').textContent  = t.labelClock;
+      document.getElementById('label-weather').textContent= t.labelWeather;
+      document.getElementById('label-quote').textContent  = t.labelQuote;
+      document.getElementById('footer').textContent       = t.footer;
+      document.documentElement.setAttribute('lang', lang);
+      localStorage.setItem('gabriel-dash-lang', lang);
+
+      // Update clock date immediately
+      updateClock();
+
+      // Update weather text if cached
+      if (window._weatherData) renderWeather(window._weatherData);
+
+      // Update quote
+      renderQuote();
+    }
+
+    // ──────────────────────────────────────────
+    // CLOCK
+    // ──────────────────────────────────────────
+    function updateClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mm = String(now.getMinutes()).padStart(2,'0');
+      const ss = String(now.getSeconds()).padStart(2,'0');
+      document.getElementById('clock-time').textContent = `${hh}:${mm}:${ss}`;
+
+      let dateStr;
+      if (lang === 'fr') {
+        const days   = i18n.fr.days;
+        const months = i18n.fr.months;
+        dateStr = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+      } else {
+        dateStr = now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+      }
+      document.getElementById('clock-date').textContent = dateStr;
+    }
+
+    setInterval(updateClock, 1000);
+
+    // ──────────────────────────────────────────
+    // WEATHER
+    // ──────────────────────────────────────────
+    function renderWeather(data) {
+      const t = i18n[lang];
+      const cur = data.current;
+      const info = weatherInfo(cur.weather_code, lang);
+      document.getElementById('weather-emoji').textContent = info.emoji;
+      document.getElementById('weather-temp').textContent  = `${Math.round(cur.temperature_2m)}°C`;
+      document.getElementById('weather-desc').textContent  = info.label;
+      document.getElementById('weather-wind').textContent  = t.wind(Math.round(cur.wind_speed_10m));
+    }
+
+    async function fetchWeather() {
+      try {
+        const url = 'https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current=temperature_2m,weather_code,wind_speed_10m';
+        const res  = await fetch(url);
+        const data = await res.json();
+        window._weatherData = data;
+        renderWeather(data);
+      } catch(e) {
+        const t = i18n[lang];
+        document.getElementById('weather-desc').textContent = t.error;
+        document.getElementById('weather-emoji').textContent = '❓';
+      }
+    }
+
+    // ──────────────────────────────────────────
+    // QUOTE
+    // ──────────────────────────────────────────
+    function renderQuote() {
+      const q = getDailyQuote();
+      document.getElementById('quote-text').textContent   = `"${lang === 'fr' ? q.fr : q.en}"`;
+      document.getElementById('quote-author').textContent = `— ${q.author}`;
+    }
+
+    // ──────────────────────────────────────────
+    // TOGGLES
+    // ──────────────────────────────────────────
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      applyTheme();
+    });
+
+    document.getElementById('lang-toggle').addEventListener('click', () => {
+      lang = lang === 'fr' ? 'en' : 'fr';
+      applyLang();
+    });
+
+    // ──────────────────────────────────────────
+    // INIT
+    // ──────────────────────────────────────────
+    applyTheme();
+    applyLang();
+    updateClock();
+    fetchWeather();
+    // Refresh weather every 10 minutes
+    setInterval(fetchWeather, 10 * 60 * 1000);
+  </script>
+</body>
+</html>
